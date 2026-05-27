@@ -2,88 +2,105 @@ import streamlit as st
 import time
 import random
 
-# 1. 페이지 설정
+# 1. 페이지 기본 설정
 st.set_page_config(
-    page_title="포켓몬 MBTI 소환 센터 🔮",
-    page_icon="⚡",
+    page_title="움직이는 MBTI 포켓몬 소환소 🔮",
+    page_icon="👾",
     layout="centered"
 )
 
-# 2. 울트라 고퀄리티 비주얼 스타일 (CSS)
+# 2. 러블리 파스텔 & 글래스모피즘 테마 CSS
 st.markdown("""
     <style>
-    /* 전체 배경: 은은한 사이버 파스텔 그라데이션 */
+    /* 전체 배경: 아기자기한 솜사탕 파스텔 그라데이션 */
     [data-testid="stAppViewContainer"], .stApp {
-        background: linear-gradient(135deg, #FFE5EC 0%, #F0E6FF 50%, #E8F0FE 100%) !important;
+        background: linear-gradient(135deg, #FFF0F5 0%, #E6F8FF 50%, #F3E8FF 100%) !important;
         background-attachment: fixed;
     }
     
-    /* 헤더 카드 글래스모피즘 효과 */
+    /* 헤더 카드 둥글고 예쁘게 꾸미기 */
     .header-box {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        padding: 30px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        padding: 25px;
         border-radius: 25px;
-        box-shadow: 0 10px 30px rgba(100, 110, 220, 0.15);
-        border: 3px solid #4EA8DE;
+        box-shadow: 0 10px 30px rgba(135, 206, 250, 0.2);
+        border: 3px dashed #A2D2FF;
         text-align: center;
         margin-bottom: 25px;
     }
     
     .title-text {
-        font-size: 2.3em !important;
+        font-size: 2.2em !important;
         font-weight: 900;
-        color: #2B2D42;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        color: #1D3557;
         margin-bottom: 5px;
     }
 
-    /* 결과 카드 기본형 */
+    /* 포켓몬 카드 컨테이너 */
     .result-card {
-        background: white !important;
+        background: rgba(255, 255, 255, 0.9) !important;
         padding: 25px;
-        border-radius: 25px;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-        border: 4px solid #4EA8DE;
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 4px solid #BDE0FE;
         margin-top: 15px;
-        transition: transform 0.3s;
     }
     
-    /* 이로치(Shiny) 획득 시 테두리 황금빛 번쩍임 애니메이션 */
+    /* 이로치(Shiny) 당첨 시 무지갯빛 테두리 애니메이션 */
     .shiny-card {
         background: linear-gradient(white, white) padding-box,
-                    linear-gradient(135deg, #FFD700, #FFA500, #FF4500) border-box !important;
+                    linear-gradient(135deg, #FFD700, #FF6B6B, #FF8E53, #FFD700) border-box !important;
         padding: 25px;
-        border-radius: 25px;
-        box-shadow: 0 20px 45px rgba(255, 165, 0, 0.4);
+        border-radius: 24px;
+        box-shadow: 0 20px 45px rgba(255, 107, 107, 0.3);
         border: 4px solid transparent;
         margin-top: 15px;
-        animation: shiny-glow 2s infinite alternate;
+        animation: rainbow-glow 3s infinite linear;
     }
 
-    @keyframes shiny-glow {
-        0% { box-shadow: 0 0 15px #FFD700; }
-        100% { box-shadow: 0 0 35px #FF4500; }
+    @keyframes rainbow-glow {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
     }
 
-    /* 능력치 레이블 스타일 */
+    /* 능력치 글씨 꾸미기 */
     .stat-label {
         font-weight: bold;
-        color: #4A4A4A;
-        font-size: 0.9em;
+        color: #495057;
+        font-size: 0.85em;
+    }
+
+    /* 타입 배지 */
+    .pokemon-type {
+        background-color: #4EA8DE;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.85em;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    
+    .partner-box {
+        background-color: #F8F9FA;
+        padding: 12px;
+        border-radius: 12px;
+        margin-top: 15px;
+        border-left: 5px solid #FFC6FF;
     }
 
     .footer {
         text-align: center;
-        color: #6C757D;
+        color: #8E9AAF;
         font-size: 0.85em;
-        margin-top: 50px;
-        padding: 15px;
+        margin-top: 45px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. 고화질 이미지 번호 및 게임 종족값(HP, 공격, 방어, 스피드) 정밀 데이터 세팅
+# 3. MBTI 별 포켓몬 고유 도감 정보 및 상세 능력치
 mbti_pokemon = {
     "ISTJ": {
         "name": "이상해씨 (Bulbasaur)", "id": 1, "emoji": "🍃", "type": "풀 / 독", "partner": "ESFP",
@@ -143,7 +160,7 @@ mbti_pokemon = {
     "ENTP": {
         "name": "팬텀 (Gengar)", "id": 94, "emoji": "😈", "type": "고스트 / 독", "partner": "INTJ",
         "stats": {"HP": 60, "공격": 65, "방어": 60, "스피드": 110},
-        "desc": "지적인 모험심과 위트, 장난기 넘치는 눈빛으로 토론과 논쟁을 즐기는 천재 발명가 타입! 예측 불가한 매력과 유쾌한 입담을 가진 장난꾸러기 '팬텀'이 당신과 딱 맞습니다."
+        "desc": "지적인 모험심 and 위트, 장난기 넘치는 눈빛으로 토론과 논쟁을 즐기는 천재 발명가 타입! 예측 불가한 매력과 유쾌한 입담을 가진 장난꾸러기 '팬텀'이 당신과 딱 맞습니다."
     },
     "ESTJ": {
         "name": "괴력몬 (Machamp)", "id": 68, "emoji": "💪", "type": "격투", "partner": "ISFP",
@@ -167,126 +184,128 @@ mbti_pokemon = {
     }
 }
 
-# 4. 헤더 대문
+# 4. 헤더 대문 구성
 st.markdown("""
     <div class="header-box">
-        <div class="title-text">🔮 전설의 MBTI 포켓몬 매칭 센터</div>
-        <p style="color: #4A5568; font-size: 1.1em; margin: 8px 0 0 0;">
-            오리지널 울음소리 🔊 와 희귀 이로치 찬스 ✨가 있는 모험을 시작해보세요!
+        <div class="title-text">👾 생생하게 움직이는 MBTI 포켓몬</div>
+        <p style="color: #4E878C; font-size: 1.1em; margin: 8px 0 0 0;">
+            10%의 확률을 뚫고 찬란하게 빛나는 <b>이로치 포켓몬</b>을 획득해보세요! ✨
         </p>
     </div>
 """, unsafe_allow_html=True)
 
-# 5. [추가기능 1] MBTI를 모르는 친구를 위한 간이 자가진단 (Expander)
-with st.expander("🤔 내 MBTI를 잘 모르겠나요? (초간단 4문항 테스트)"):
-    st.write("간단하게 선택해 주시면 본인의 MBTI가 자동 계산되어 메인 선택창에 적용됩니다!")
-    q1 = st.radio("1. 에너지를 어디서 얻나요?", ["사람들과 수다 떨고 활동할 때 (E)", "조용히 혼자 쉬거나 충전할 때 (I)"], index=0)
-    q2 = st.radio("2. 정보를 파악하는 방식은?", ["오감과 사실적인 현실에 집중 (S)", "육감과 미래의 상상, 가능성에 집중 (N)"], index=1)
-    q3 = st.radio("3. 결정을 내릴 때 중요한 것은?", ["논리와 객관적인 분석이 우선 (T)", "사람 간의 관계와 감정 공감이 우선 (F)"], index=0)
-    q4 = st.radio("4. 생활하는 패턴은?", ["계획적이고 체계적인 실천 (J)", "상황에 맞춰 즉흥적으로 움직임 (P)"], index=1)
+# 5. MBTI 간이 진단 기기
+with st.expander("🤔 내 MBTI를 모르겠다면? 3초 간이 테스트"):
+    st.write("알맞은 행동 양식을 골라주시면 MBTI가 조합됩니다.")
+    q1 = st.radio("1. 에너지를 어디서 충전하나요?", ["친구들과 활기차게 어울리기 (E)", "집에서 조용히 혼자 시간 보내기 (I)"])
+    q2 = st.radio("2. 평소 생각을 구상할 때?", ["눈앞의 팩트와 생생한 현실에 집중 (S)", "머릿속 상상과 미래의 가능성에 무게 (N)"])
+    q3 = st.radio("3. 타인을 위로하는 방식은?", ["상황 분석 및 이성적인 피드백 (T)", "속상한 마음에 격하게 감정 공감하기 (F)"])
+    q4 = st.radio("4. 과제를 할 때 스타일은?", ["체계적인 시간 계획 및 실천 (J)", "직전까지 미루다 벼락치기로 돌파 (P)"])
     
-    # MBTI 스트링 계산
     calc_mbti = (
         ("E" if "E" in q1 else "I") +
         ("S" if "S" in q2 else "N") +
         ("T" if "T" in q3 else "F") +
         ("J" if "J" in q4 else "P")
     )
-    st.success(f"당신의 추천 MBTI는 **{calc_mbti}** 입니다! 아래 선택창에 적용 버튼을 눌러보세요.")
-    if st.button("내 MBTI 적용하기 🎯"):
-        st.session_state["my_mbti"] = calc_mbti
+    st.success(f"나의 매칭 MBTI: **{calc_mbti}**")
+    if st.button("계산된 MBTI 적용하기 🎯"):
+        st.session_state["mbti_val"] = calc_mbti
         st.toast(f"{calc_mbti}가 적용되었습니다!")
 
-# 6. 메인 입력창 설정
+# 6. 메인 입력창 연동
 mbti_list = sorted(list(mbti_pokemon.keys()))
-default_mbti = st.session_state.get("my_mbti", "ENFP") # 간이 테스트 연동
+default_mbti = st.session_state.get("mbti_val", "ENFP")
 
-col1, col2 = st.columns([2, 1])
-with col1:
-    selected_mbti = st.selectbox("👇 분석할 MBTI를 골라주세요!", mbti_list, index=mbti_list.index(default_mbti))
-with col2:
-    # 이로치 강제 소환 치트키 스위치!
-    force_shiny = st.checkbox("✨ 무조건 이로치 소환!")
+col_sel = st.columns([1, 2, 1])
+with col_sel[1]:
+    selected_mbti = st.selectbox("👇 당신의 진짜 MBTI는 무엇인가요?", mbti_list, index=mbti_list.index(default_mbti))
 
 st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-# 7. 소환 개시!
-if st.button("☄️ 포켓볼 던지기!! (소환) ☄️", use_container_width=True):
+# 7. 포켓볼 소환 액션
+if st.button("🔴 포켓볼 던져서 소환하기! 🔴", use_container_width=True):
     
-    # 7-1. 극적인 로딩 효과
-    with st.spinner('정령 소환중... 포켓볼이 흔들립니다! 🔴'):
+    # 7-1. 귀여운 가짜 대기 시간
+    with st.spinner('포켓볼이 마구 흔들립니다... 덜컹! 덜컹!'):
         time.sleep(1.2)
-    
-    # 7-2. 이로치 확률 연산 (치트키 켜져있거나 10% 확률 돌입 시)
-    is_shiny = force_shiny or (random.random() < 0.10)
-    
+        
     pokemon = mbti_pokemon[selected_mbti]
     partner_mbti = pokemon["partner"]
     partner_pokemon = mbti_pokemon[partner_mbti]
     
-    # 7-3. PokeAPI 공식 고해상도 이미지 (이로치 여부에 따라 디렉토리 변경)
-    if is_shiny:
-        image_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/{pokemon['id']}.png"
-        st.balloons()
-        st.toast("✨ 와우! 10%의 확률을 뚫고 '색이 다른' 이로치 포켓몬이 소환되었습니다!! ✨")
-    else:
-        image_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon['id']}.png"
-        st.snow() # 일반 소환 시 눈 내리는 은은한 효과
-        
-    # 7-4. 울음소리 오디오 파일 URL 연동 (PokeAPI 공식 소리 데이터베이스)
-    cry_url = f"https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/{pokemon['id']}.ogg"
+    # 7-2. ★★ 10% 이로치 가챠 시스템 구현 ★★
+    # random.random()은 0.0과 1.0 사이의 실수를 임의로 반환합니다.
+    # 0.1보다 작을 확률이 정확히 10%입니다!
+    is_shiny = random.random() < 0.10
     
-    # 7-5. 소리를 웹 화면에 몰래 재생하기 (audio autoplay, 화면엔 숨김)
+    # 7-3. ★★ 움직이는 쇼다운 gif 연동 ★★
+    # PokeAPI의 showdown 서브 에셋 폴더에 들어있는 움직이는 gif 주소입니다.
+    if is_shiny:
+        image_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/{pokemon['id']}.gif"
+        st.balloons() # 이로치 전용 축하 팡팡 효과
+        st.toast("🚨 대박! 10%의 행운! 초희귀 이로치 포켓몬 당첨! 🚨")
+    else:
+        image_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/{pokemon['id']}.gif"
+        st.snow() # 일반 소환 시 아늑하게 눈 내리는 효과
+    
+    # 7-4. 울음소리 자동 재생 주입
+    cry_url = f"https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/{pokemon['id']}.ogg"
     st.markdown(f'<audio src="{cry_url}" autoplay style="display:none;"></audio>', unsafe_allow_html=True)
     
-    # 8. 소환 성공 카드 레이아웃 구성
-    card_style = "shiny-card" if is_shiny else "result-card"
+    # 7-5. 소환 결과 텍스트 안내
+    if is_shiny:
+        st.warning(f"✨ 축하합니다! 반짝이는 이로치 {pokemon['name']}(이)가 소환되었습니다!")
+    else:
+        st.success(f"🎉 성공! 귀여운 {pokemon['name']}(이)가 무사히 소환되었습니다!")
+
+    # 8. 애니메이션 포켓몬 전용 아기자기한 카드 레이아웃
+    card_class = "shiny-card" if is_shiny else "result-card"
+    st.markdown(f"<div class='{card_class}'>", unsafe_allow_html=True)
     
-    st.markdown(f"<div class='{card_style}'>", unsafe_allow_html=True)
+    c1, c2 = st.columns([1, 1.2])
     
-    c_col1, c_col2 = st.columns([1, 1.2])
-    
-    with c_col1:
-        # 포켓몬 일러스트 전시
-        st.image(image_url, use_container_width=True)
-        # 이로치 타이틀 보너스 마크
+    with c1:
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        # 움직이는 포켓몬 배치 (픽셀 아트가 찌그러지지 않게 150px 고정 크기 제공)
+        st.image(image_url, caption="움직이는 실제 모습 👾", width=150)
+        
         if is_shiny:
-            st.markdown("<p style='text-align:center; color:#FF8C00; font-weight:bold; font-size:1.1em;'>✨ SHINY VERSION ✨</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; color:#E63946; font-weight:bold; font-size:1.1em;'>✨ SHINY! ✨</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='text-align:center; color:gray; font-size:0.9em;'>도감번호 No. {pokemon['id']}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='text-align:center; color:#6C757D; font-size:0.9em;'>도감 NO. {pokemon['id']}</p>", unsafe_allow_html=True)
             
-    with c_col2:
-        # 포켓몬 기본 정보
+    with c2:
         st.markdown(f"### {pokemon['emoji']} {pokemon['name']}")
         st.markdown(f"<span class='pokemon-type'>타입: {pokemon['type']}</span>", unsafe_allow_html=True)
         st.write(pokemon['desc'])
         
-        # [추가기능 2] 게임 능력치 스탯 바 표시 (Base Stats)
-        st.markdown("<p style='margin-bottom:2px; font-weight:bold;'>🎮 포켓몬 성격 능력치</p>", unsafe_allow_html=True)
+        # 성격 능력치 스탯 바 표시
+        st.markdown("<p style='margin-bottom:2px; font-weight:bold; font-size:0.95em;'>🎮 종족 능력치 분석</p>", unsafe_allow_html=True)
         for stat_name, stat_val in pokemon["stats"].items():
-            # 실제 스탯을 프로그레스바로 시각화 (최대치 255 기준 비율 환산)
+            # 150 기준 백분율로 채움
             normalized_val = min(1.0, stat_val / 150.0)
-            col_stat1, col_stat2 = st.columns([1.5, 3.5])
-            with col_stat1:
+            col_st1, col_st2 = st.columns([1.5, 3.5])
+            with col_st1:
                 st.markdown(f"<span class='stat-label'>{stat_name}: {stat_val}</span>", unsafe_allow_html=True)
-            with col_stat2:
-                # 스탯에 따라 바의 컬러를 다르게 적용하는 디테일
-                color = "green" if stat_name == "HP" else "orange" if stat_name == "공격" else "blue"
+            with col_st2:
+                # 스탯에 따라 예쁜 파스텔 바 색칠하기
                 st.progress(normalized_val)
                 
         # 환상의 궁합
         st.markdown(f"""
             <div class='partner-box'>
-                🤝 <b>환상의 궁합:</b> {partner_mbti} ({partner_pokemon['name']})<br>
-                <small>서로의 성격을 완벽히 보완해 주는 최고의 파트너 포켓몬입니다!</small>
+                🤝 <b>최강의 소울메이트:</b> {partner_mbti} ({partner_pokemon['name']})<br>
+                <small>함께 공부하거나 협동 게임을 할 때 최고의 파트너십을 보여줍니다!</small>
             </div>
         """, unsafe_allow_html=True)
         
     st.markdown("</div>", unsafe_allow_html=True)
+    st.info(f"💡 **10% 가챠 도전!** 과연 한 번에 이로치 포켓몬을 뽑은 금손 친구는 누구일까요? 링크를 공유해 대결해 보세요! 🏆")
 
-# 9. 푸터
+# 9. 푸터 영역
 st.markdown("""
     <div class="footer">
-        💖 제작: 당곡고등학교 멋쟁이 개발자 학생 🎓 | Powered by Streamlit & PokeAPI
+        💖 제작: 당곡고등학교 멋쟁이 개발자 학생 🎓 | Powered by Streamlit & PokeAPI Showdown GIF
     </div>
 """, unsafe_allow_html=True)
