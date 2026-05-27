@@ -1,48 +1,89 @@
 import streamlit as st
 import time
 
-# 1. 페이지 테마 설정
+# 1. 페이지 설정
 st.set_page_config(
     page_title="궁극의 MBTI 포켓몬 매칭 센터 🔮",
     page_icon="🌈",
     layout="centered"
 )
 
-# 2. 고퀄리티 디자인을 위한 Custom CSS 적용
+# 2. ★ 대폭 업그레이드된 화려한 CSS 스타일 ★
+# Streamlit의 기본 테마 배경을 덮어씌우고 귀여운 테마를 적용합니다.
 st.markdown("""
     <style>
-    /* 전체 배경 톤 조절 */
-    .stApp {
-        background-color: #fcfdfe;
+    /* 1. 전체 앱의 배경을 화사한 파스텔 그라데이션으로 변경 (피카츄 노란빛 + 푸른 하늘빛) */
+    [data-testid="stAppViewContainer"], .stApp {
+        background: linear-gradient(135deg, #FFF9D0 0%, #CAF0F8 50%, #E0AAFF 100%) !important;
+        background-attachment: fixed;
     }
-    /* 타이틀 스타일 */
-    .title-text {
-        font-family: 'GmarketSansBold', sans-serif;
-        color: #2c3e50;
+    
+    /* 2. 메인 헤더를 투명하고 둥근 카드로 감싸기 (글래스모피즘 효과) */
+    .header-box {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 25px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        border: 2px dashed #FFCB05; /* 포켓몬 공식 골드 색상의 점선 테두리 */
         text-align: center;
+        margin-bottom: 25px;
+    }
+    
+    /* 3. 메인 타이틀 텍스트 디자인 */
+    .title-text {
+        font-size: 2.2em !important;
+        font-weight: 800;
+        color: #1D3557;
         margin-bottom: 5px;
     }
-    /* 카드 디자인 */
+    
+    /* 4. 결과 출력용 고퀄리티 카드 디자인 */
     .result-card {
-        background-color: #ffffff;
+        background: rgba(255, 255, 255, 0.9) !important;
         padding: 25px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        border: 1px solid #eef2f6;
-    }
-    /* 파트너 매칭 박스 */
-    .partner-box {
-        background-color: #f0f4f8;
-        padding: 15px;
-        border-radius: 12px;
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 3px solid #FFDE00; /* 피카츄 옐로우 실선 테두리 */
         margin-top: 15px;
-        border-left: 5px solid #3b82f6;
+    }
+    
+    /* 5. 포켓몬 타입 라벨 */
+    .pokemon-type {
+        background-color: #EE1515; /* 포켓볼 레드 */
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.85em;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    
+    /* 6. 환상의 짝꿍 매칭 박스 */
+    .partner-box {
+        background-color: #E8F5E9;
+        padding: 15px;
+        border-radius: 15px;
+        margin-top: 15px;
+        border-left: 6px solid #4CAF50;
+    }
+    
+    /* 7. 귀여운 푸터 영역 */
+    .footer {
+        text-align: center;
+        color: #4A4A4A;
+        font-size: 0.9em;
+        margin-top: 40px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. MBTI 데이터 및 이미지 ID, 환상의 짝꿍 정보 설정
-# PokeAPI 공식 일러스트 ID를 사용하여 이미지를 호출합니다.
+# 3. 데이터 사전 정의 (PokeAPI의 공식 일러스트 ID 매핑)
 mbti_pokemon = {
     "ISTJ": {
         "name": "이상해씨 (Bulbasaur)", "id": 1, "emoji": "🍃", "type": "풀 / 독", "partner": "ESFP",
@@ -110,70 +151,76 @@ mbti_pokemon = {
     }
 }
 
-# 4. 헤더 영역 구성
-st.markdown("<h1 class='title-text'>🔮 궁극의 MBTI 포켓몬 매칭 센터</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #7f8c8d; font-size: 1.1em;'>나의 성격 유형과 찰떡궁합인 고화질 포켓몬 일러스트와 분석 결과를 만나보세요! ✨</p>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 0.5px solid #eaeaea;'>", unsafe_allow_html=True)
+# 4. 헤더 박스 영역
+st.markdown("""
+    <div class="header-box">
+        <div class="title-text">🔮 나의 MBTI 포켓몬 매칭</div>
+        <p style="color: #457B9D; font-size: 1.1em; margin: 10px 0 0 0;">
+            환상적이고 귀여운 나만의 포켓몬 파트너를 찾으러 떠나볼까요? 🎈✈️
+        </p>
+    </div>
+""", unsafe_allow_html=True)
 
 # 5. 사용자 입력 선택
 mbti_list = sorted(list(mbti_pokemon.keys()))
 
 col_center = st.columns([1, 2, 1])
 with col_center[1]:
-    selected_mbti = st.selectbox("👇 당신의 MBTI 성격 유형을 알려주세요!", mbti_list, index=0)
+    # selectbox도 둥글게 꾸며진 입력창
+    selected_mbti = st.selectbox("👇 나의 MBTI 성격 유형 선택하기", mbti_list, index=0)
 
-# 6. 분석 시작 버튼과 고퀄리티 로딩 모션
-st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-if st.button("🌟 포켓몬 도감 매칭 분석 시작 🌟", use_container_width=True):
-    
-    # 6-1. 게이지바를 사용해 고퀄리티 로딩 구현
+st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+
+# 6. 매칭 분석 시작 버튼
+if st.button("🌟 내 운명의 포켓몬 파트너 소환! 🌟", use_container_width=True):
+    # 멋진 분석 대기 시각 효과
     progress_bar = st.progress(0)
     for percent_complete in range(100):
-        time.sleep(0.015)  # 1.5초 로딩 효과
+        time.sleep(0.01)  # 신속하면서도 극적인 효과를 위해 1초 대기 효과
         progress_bar.progress(percent_complete + 1)
     
     pokemon = mbti_pokemon[selected_mbti]
     partner_mbti = pokemon["partner"]
     partner_pokemon = mbti_pokemon[partner_mbti]
     
-    # 꽃가루/풍선 팡팡! 효과
+    # 팡팡 터지는 꽃가루 효과!
     st.balloons()
     
-    # 고해상도 공식 이미지 URL 생성 (PokeAPI 공식 깃허브 에셋에서 로드)
+    # 이미지 주소 생성 (PokeAPI 공식 깃허브 에셋)
     image_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon['id']}.png"
-    partner_image_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{partner_pokemon['id']}.png"
     
-    # 7. 분석 결과 출력부 (레이아웃 나누기)
-    st.success(f"🎉 분석 완료! {selected_mbti}인 당신과 닮은 포켓몬은...")
+    st.success(f"🎉 소환 완료! {selected_mbti} 유형의 파트너가 등장했습니다!")
     
-    # 깔끔한 카드 레이아웃 구성
+    # 7. 세련된 결과 카드 레이아웃 출력
     st.markdown("<div class='result-card'>", unsafe_allow_html=True)
     
-    # 2단 컬럼 구성 (좌: 이미지, 우: 분석 텍스트)
     card_col1, card_col2 = st.columns([1, 1.2])
     
     with card_col1:
-        # 포켓몬 공식 일러스트 띄우기
-        st.image(image_url, caption=f"고해상도 일러스트 No.{pokemon['id']}", use_container_width=True)
+        # 좌측: 공식 포켓몬 고화질 일러스트 표시
+        st.image(image_url, use_container_width=True)
         
     with card_col2:
-        st.markdown(f"<p class='pokemon-title'>{pokemon['emoji']} {pokemon['name']}</p>", unsafe_allow_html=True)
+        # 우측: 설명 및 상세 속성들
+        st.markdown(f"### {pokemon['emoji']} {pokemon['name']}")
         st.markdown(f"<span class='pokemon-type'>타입: {pokemon['type']}</span>", unsafe_allow_html=True)
-        st.markdown(f"<p class='pokemon-desc'>{pokemon['desc']}</p>", unsafe_allow_html=True)
+        st.write(pokemon['desc'])
         
-        # 찰떡궁합 안내 추가
+        # 최고의 파트너 매치 정보 제공
         st.markdown(f"""
             <div class='partner-box'>
-                🤝 <b>환상의 짝꿍 MBTI:</b> {partner_mbti} ({partner_pokemon['name']})<br>
-                <small>두 친구가 힘을 합치면 그 어떤 배틀도 승리로 이끌 수 있어요!</small>
+                🤝 <b>환상의 궁합 메이트:</b> {partner_mbti} ({partner_pokemon['name']})<br>
+                <small>함께 모험을 떠나면 최고의 능력을 발휘할 수 있는 든든한 단짝입니다!</small>
             </div>
         """, unsafe_allow_html=True)
         
     st.markdown("</div>", unsafe_allow_html=True)
     
-    # 8. 미니 궁합 포켓몬 이미지 (작게 추가 구성)
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.info(f"💡 **한 줄 팁:** 친구들과 결과 링크를 공유하고, 내 <b>{partner_mbti} ({partner_pokemon['name']})</b> 단짝을 직접 찾아보세요! 🚀")
+    st.info(f"💡 **공유하기 꿀팁:** 친구들에게 나의 포켓몬 <b>{pokemon['name']}</b>을 소개하고, 친구들의 궁합 파트너도 확인해보세요!")
 
-st.markdown("<br><hr style='border: 0.5px solid #eaeaea;'>", unsafe_allow_html=True)
-st.caption("제작: 당곡고등학교 멋쟁이 개발자 학생 🎓 | Powered by Streamlit & PokeAPI")
+# 8. 푸터 영역 디자인
+st.markdown("""
+    <div class="footer">
+        💛 당곡고등학교 멋쟁이 개발자 학생 🎓 | Powered by Streamlit & PokeAPI
+    </div>
+""", unsafe_allow_html=True)
